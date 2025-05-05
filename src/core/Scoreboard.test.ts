@@ -64,8 +64,8 @@ describe('Scoreboard', () => {
             const match = scoreboard.startMatch(homeTeam, awayTeam);
             const after = Date.now();
             expect(typeof match.startTime).toBe('number');
-            expect(match.startTime).toBeGreaterThan(before);
-            expect(match.startTime).toBeLessThan(after);
+            expect(match.startTime).toBeGreaterThanOrEqual(before);
+            expect(match.startTime).toBeLessThanOrEqual(after);
         });
     });
 
