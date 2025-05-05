@@ -7,6 +7,21 @@ export class Scoreboard {
         return this.matches;
     }
 
+    public finishMatch(homeTeam: string, awayTeam: string) {
+        const trimmedHomeTeam = homeTeam.trim();
+        const trimmedAwayTeam = awayTeam.trim();
+
+        const matchIndex = this.matches.findIndex((match: Match) => {
+            return match.homeTeam === trimmedHomeTeam && match.awayTeam === trimmedAwayTeam;
+        });
+
+        if (matchIndex === -1) {
+            throw new Error('Match is not found');
+        }
+
+        this.matches.splice(matchIndex, 1);
+    }
+
     public startMatch(homeTeam: string, awayTeam: string): Match {
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
