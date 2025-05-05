@@ -31,6 +31,29 @@ describe('Scoreboard', () => {
             expect(match.homeTeam).toBe(homeTeam);
             expect(match.awayTeam).toBe(awayTeam);
         });
+
+        it('should throw if homeTeam is empty', () => {
+            expect(() => {
+                scoreboard.startMatch('', awayTeam);
+            }).toThrowError('Team names are required');
+        });
+        it('should throw if awayTeam is empty', () => {
+            expect(() => {
+                scoreboard.startMatch(homeTeam, '');
+            }).toThrowError('Team names are required');
+        });
+        it('should throw if both teams are the same', () => {
+            expect(() => {
+                scoreboard.startMatch(homeTeam, homeTeam);
+            }).toThrowError('Teams must be different');
+        });
+        it('should throw if match already exists', () => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+
+            expect(() => {
+                scoreboard.startMatch(homeTeam, awayTeam);
+            }).toThrowError('Match already started');
+        });
     });
 
     describe('startMatch timing', () => {
