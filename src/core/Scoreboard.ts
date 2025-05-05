@@ -3,6 +3,10 @@ import { Match } from './Match';
 export class Scoreboard {
     private matches: Match[] = [];
 
+    public getMatches(): Match[] {
+        return this.matches;
+    }
+
     public startMatch(homeTeam: string, awayTeam: string): Match {
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
