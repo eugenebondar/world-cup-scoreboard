@@ -1,1 +1,14 @@
-export class Match {}
+export class Match {
+    public homeScore: number = 0;
+    public awayScore: number = 0;
+
+    constructor(
+        public readonly homeTeam: string,
+        public readonly awayTeam: string,
+    ) {}
+
+    public updateScore(homeScore: number, awayScore: number) {
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
+    }
+}
