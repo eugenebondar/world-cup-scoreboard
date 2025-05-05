@@ -16,6 +16,10 @@ describe('Scoreboard', () => {
             match = scoreboard.startMatch(homeTeam, awayTeam);
         });
 
+        afterEach(() => {
+            scoreboard = new Scoreboard();
+        });
+
         it('should store the match internally', () => {
             const matches = scoreboard.getMatches();
             expect(matches.length).toBe(1);
@@ -48,8 +52,6 @@ describe('Scoreboard', () => {
             }).toThrowError('Teams must be different');
         });
         it('should throw if match already exists', () => {
-            scoreboard.startMatch(homeTeam, awayTeam);
-
             expect(() => {
                 scoreboard.startMatch(homeTeam, awayTeam);
             }).toThrowError('Match already started');
