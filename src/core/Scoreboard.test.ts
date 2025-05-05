@@ -131,4 +131,26 @@ describe('Scoreboard', () => {
             expect(matches[0].awayScore).toBe(1);
         });
     });
+
+    describe('finishMatch', () => {
+        beforeEach(() => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+        });
+
+        it('should remove a match from the scoreboard', () => {
+            scoreboard.finishMatch(homeTeam, awayTeam);
+            expect(scoreboard.getMatches()).toHaveLength(0);
+        });
+
+        it('should remove a match even with extra whitespace in team names', () => {
+            scoreboard.finishMatch(` ${homeTeam} `, ` ${awayTeam} `);
+            expect(scoreboard.getMatches()).toHaveLength(0);
+        });
+
+        it('should throw if the match doesn`t exist', () => {
+            expect(() => {
+                scoreboard.finishMatch('China', 'Germany');
+            }).toThrowError('Match is not found');
+        });
+    });
 });
