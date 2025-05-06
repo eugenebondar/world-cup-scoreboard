@@ -4,11 +4,11 @@ import { ScoreboardError } from './errors';
 export class Scoreboard {
     private matches: Match[] = [];
 
-    public getMatches(): Match[] {
+    public getMatches(): readonly Match[] {
         return this.matches;
     }
 
-    public getSummary(): Match[] {
+    public getSummary(): readonly Match[] {
         return [...this.matches]
             .sort((a: Match, b: Match): number => {
                 const totalA = a.homeScore + a.awayScore;
