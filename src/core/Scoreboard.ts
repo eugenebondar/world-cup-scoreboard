@@ -22,13 +22,22 @@ export class Scoreboard {
             });
     }
 
+    private findMatch(homeTeam: string, awayTeam: string): Match | undefined {
+        const index = this.findMatchIndex(homeTeam, awayTeam);
+        return index < 0 ? undefined : this.matches[index];
+    }
+
+    private findMatchIndex(homeTeam: string, awayTeam: string): number {
+        return this.matches.findIndex((match: Match) => {
+            return match.homeTeam === homeTeam && match.awayTeam === awayTeam;
+        });
+    }
+
     public finishMatch(homeTeam: string, awayTeam: string) {
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
 
-        const matchIndex = this.matches.findIndex((match: Match) => {
-            return match.homeTeam === trimmedHomeTeam && match.awayTeam === trimmedAwayTeam;
-        });
+        const matchIndex = this.findMatchIndex(trimmedHomeTeam, trimmedAwayTeam);
 
         if (matchIndex === -1) {
             throw new Error(ScoreboardError.MatchNotFound);
@@ -49,7 +58,7 @@ export class Scoreboard {
             throw new Error(ScoreboardError.TeamsMustDiffer);
         }
 
-        const matchExists = this.matches.some((match: Match) => match.homeTeam === trimmedHomeTeam && match.awayTeam === trimmedAwayTeam);
+        const matchExists = this.findMatch(trimmedHomeTeam, trimmedAwayTeam);
 
         if (matchExists) {
             throw new Error(ScoreboardError.MatchAlreadyStarted);
@@ -68,7 +77,7 @@ export class Scoreboard {
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
 
-        const matchExists = this.matches.find((match: Match) => match.homeTeam === trimmedHomeTeam && match.awayTeam === trimmedAwayTeam);
+        const matchExists = this.findMatch(trimmedHomeTeam, trimmedAwayTeam);
 
         if (!matchExists) {
             throw new Error(ScoreboardError.MatchNotFound);
