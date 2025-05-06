@@ -7,6 +7,20 @@ export class Scoreboard {
         return this.matches;
     }
 
+    public getSummary(): Match[] {
+        return [...this.matches]
+            .sort((a: Match, b: Match): number => {
+                const totalA = a.homeScore + a.awayScore;
+                const totalB = b.homeScore + b.awayScore;
+
+                if (totalA !== totalB) {
+                    return totalB - totalA;
+                }
+
+                return b.startTime - a.startTime;
+            });
+    }
+
     public finishMatch(homeTeam: string, awayTeam: string) {
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
