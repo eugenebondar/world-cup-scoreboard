@@ -1,4 +1,5 @@
 import { Scoreboard } from './Scoreboard';
+import { ScoreboardError } from './errors';
 
 describe('Scoreboard', () => {
     let scoreboard: Scoreboard;
@@ -39,22 +40,22 @@ describe('Scoreboard', () => {
         it('should throw if homeTeam is empty', () => {
             expect(() => {
                 scoreboard.startMatch('', awayTeam);
-            }).toThrowError('Team names are required');
+            }).toThrowError(ScoreboardError.TeamNamesRequired);
         });
         it('should throw if awayTeam is empty', () => {
             expect(() => {
                 scoreboard.startMatch(homeTeam, '');
-            }).toThrowError('Team names are required');
+            }).toThrowError(ScoreboardError.TeamNamesRequired);
         });
         it('should throw if both teams are the same', () => {
             expect(() => {
                 scoreboard.startMatch(homeTeam, homeTeam);
-            }).toThrowError('Teams must be different');
+            }).toThrowError(ScoreboardError.TeamsMustDiffer);
         });
         it('should throw if match already exists', () => {
             expect(() => {
                 scoreboard.startMatch(homeTeam, awayTeam);
-            }).toThrowError('Match already started');
+            }).toThrowError(ScoreboardError.MatchAlreadyStarted);
         });
     });
 
@@ -86,40 +87,40 @@ describe('Scoreboard', () => {
         it('should throw if match is not found', () => {
             expect(() => {
                 scoreboard.updateScore('Spain', 'Germany', 1, 0);
-            }).toThrowError('Match is not found');
+            }).toThrowError(ScoreboardError.MatchNotFound);
         });
 
         it('should throw if score is negative', () => {
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, -1, 0);
-            }).toThrowError('Score cannot be negative');
+            }).toThrowError(ScoreboardError.ScoreNegative);
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, 0, -1);
-            }).toThrowError('Score cannot be negative');
+            }).toThrowError(ScoreboardError.ScoreNegative);
         });
 
         it('should throw if score is NaN', () => {
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, NaN, 0);
-            }).toThrowError('Score cannot be NaN');
+            }).toThrowError(ScoreboardError.ScoreNaN);
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, 0, NaN);
-            }).toThrowError('Score cannot be NaN');
+            }).toThrowError(ScoreboardError.ScoreNaN);
         });
 
         it('should throw if score is Infinity', () => {
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, Infinity, 0);
-            }).toThrowError('Score cannot be Infinity');
+            }).toThrowError(ScoreboardError.ScoreInfinity);
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, 0, Infinity);
-            }).toThrowError('Score cannot be Infinity');
+            }).toThrowError(ScoreboardError.ScoreInfinity);
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, -Infinity, 0);
-            }).toThrowError('Score cannot be -Infinity');
+            }).toThrowError(ScoreboardError.ScoreNegInfinity);
             expect(() => {
                 scoreboard.updateScore(homeTeam, awayTeam, 0, -Infinity);
-            }).toThrowError('Score cannot be -Infinity');
+            }).toThrowError(ScoreboardError.ScoreNegInfinity);
         });
 
         it('should allow updating the same match multiple times', () => {
@@ -150,7 +151,7 @@ describe('Scoreboard', () => {
         it('should throw if the match doesn`t exist', () => {
             expect(() => {
                 scoreboard.finishMatch('China', 'Germany');
-            }).toThrowError('Match is not found');
+            }).toThrowError(ScoreboardError.MatchNotFound);
         });
     });
 
