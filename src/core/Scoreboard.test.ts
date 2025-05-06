@@ -153,4 +153,130 @@ describe('Scoreboard', () => {
             }).toThrowError('Match is not found');
         });
     });
+
+    describe('getSummary', () => {
+        it('should return matches ordered by total score descending', () => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+            scoreboard.updateScore(homeTeam, awayTeam, 0, 4);
+
+            scoreboard.startMatch('Poland', 'Spain');
+            scoreboard.updateScore('Poland', 'Spain', 8, 2);
+
+            scoreboard.startMatch('Italy', 'Germany');
+            scoreboard.updateScore('Italy', 'Germany', 2, 2);
+
+            scoreboard.startMatch('Argentina', 'Brazil');
+            scoreboard.updateScore('Argentina', 'Brazil', 5, 5);
+
+            scoreboard.startMatch('France', 'Slovakia');
+            scoreboard.updateScore('France', 'Slovakia', 2, 1);
+
+            const summary = scoreboard.getSummary().map(({homeScore, homeTeam, awayTeam, awayScore}) => [
+                homeTeam,
+                homeScore,
+                '-',
+                awayScore,
+                awayTeam,
+            ].join(' '));
+
+            expect(summary).toEqual([
+                'Poland 8 - 2 Spain',
+                'Argentina 5 - 5 Brazil',
+                'Mexico 0 - 4 Canada',
+                'Italy 2 - 2 Germany',
+                'France 2 - 1 Slovakia',
+            ])
+        });
+
+        it('should order by most recently started if scores are equal', () => {
+            jest.useFakeTimers();
+
+            jest.setSystemTime(new Date('2025-05-05T12:00:00Z'));
+            scoreboard.startMatch(homeTeam, awayTeam);
+            scoreboard.updateScore(homeTeam, awayTeam, 2, 2);
+
+            jest.setSystemTime(new Date('2025-05-05T12:00:01Z'));
+            scoreboard.startMatch('Poland', 'Spain');
+            scoreboard.updateScore('Poland', 'Spain', 2, 2);
+
+            const summary = scoreboard.getSummary();
+
+            expect(summary[0].homeTeam).toBe('Poland');
+            expect(summary[0].awayTeam).toBe('Spain');
+            expect(summary[1].homeTeam).toBe(homeTeam);
+            expect(summary[1].awayTeam).toBe(awayTeam);
+
+            jest.useRealTimers();
+        });
+
+        it('should return empty array if no matches are in progress', () => {
+            const summary = scoreboard.getSummary();
+            expect(summary).toHaveLength(0);
+        });
+
+        it('should sort 0-0 score lowest regardless of start time', () => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+            scoreboard.updateScore(homeTeam, awayTeam, 0, 0);
+
+            scoreboard.startMatch('Poland', 'Spain');
+            scoreboard.updateScore('Poland', 'Spain', 1, 0);
+
+            const summary = scoreboard.getSummary();
+
+            expect(summary[0].homeTeam).toBe('Poland');
+            expect(summary[0].awayTeam).toBe('Spain');
+            expect(summary[1].homeTeam).toBe(homeTeam);
+            expect(summary[1].awayTeam).toBe(awayTeam);
+        });
+
+        it('should not return finished matches', () => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+            scoreboard.updateScore(homeTeam, awayTeam, 1, 1);
+            scoreboard.finishMatch(homeTeam, awayTeam);
+
+            const summary = scoreboard.getSummary();
+            expect(summary).toHaveLength(0);
+        });
+
+        it('should maintain insertion order for same score and startTime', () => {
+            jest.useFakeTimers();
+            jest.setSystemTime(new Date('2025-05-05T12:00:00Z'));
+
+            scoreboard.startMatch(homeTeam, awayTeam);
+
+            jest.setSystemTime(new Date('2025-05-05T12:00:00Z'));
+
+            scoreboard.startMatch('Poland', 'Spain');
+
+            scoreboard.updateScore(homeTeam, awayTeam, 1, 1);
+            scoreboard.updateScore('Poland', 'Spain', 1, 1);
+
+            const summary = scoreboard.getSummary();
+            expect(summary[0].homeTeam).toBe(homeTeam);
+            expect(summary[0].awayTeam).toBe(awayTeam);
+            expect(summary[1].homeTeam).toBe('Poland');
+            expect(summary[1].awayTeam).toBe('Spain');
+
+            jest.useRealTimers();
+        });
+
+        it('should not mutate the original matches array order', () => {
+            scoreboard.startMatch(homeTeam, awayTeam);
+            scoreboard.startMatch('Poland', 'Spain');
+
+            const originalMatches = scoreboard.getMatches();
+            const originalHomeTeamA = originalMatches[0].homeTeam;
+            const originalAwayTeamA = originalMatches[0].awayTeam;
+            const originalHomeTeamB = originalMatches[1].homeTeam;
+            const originalAwayTeamB = originalMatches[1].awayTeam;
+
+            scoreboard.getSummary();
+
+            const matches = scoreboard.getMatches();
+            expect(matches[0].homeTeam).toBe(originalHomeTeamA);
+            expect(matches[0].awayTeam).toBe(originalAwayTeamA);
+            expect(matches[1].homeTeam).toBe(originalHomeTeamB);
+            expect(matches[1].awayTeam).toBe(originalAwayTeamB);
+        });
+    });
 });
