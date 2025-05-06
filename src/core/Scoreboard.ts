@@ -62,21 +62,8 @@ export class Scoreboard {
     };
 
     public updateScore(homeTeam: string, awayTeam: string, homeScore: number, awayScore: number) {
-        if (Number.isNaN(homeScore) || Number.isNaN(awayScore)) {
-            throw new Error(ScoreboardError.ScoreNaN);
-        }
-
-        if (homeScore === Infinity || awayScore === Infinity) {
-            throw new Error(ScoreboardError.ScoreInfinity);
-        }
-
-        if (homeScore === -Infinity || awayScore === -Infinity) {
-            throw new Error(ScoreboardError.ScoreNegInfinity);
-        }
-
-        if (homeScore < 0 || awayScore < 0) {
-            throw new Error(ScoreboardError.ScoreNegative);
-        }
+        this.validateScore(homeScore);
+        this.validateScore(awayScore);
 
         const trimmedHomeTeam = homeTeam.trim();
         const trimmedAwayTeam = awayTeam.trim();
@@ -89,4 +76,22 @@ export class Scoreboard {
 
         matchExists.updateScore(homeScore, awayScore);
     };
+
+    private validateScore(value: number): void {
+        if (Number.isNaN(value)) {
+            throw new Error(ScoreboardError.ScoreNaN);
+        }
+
+        if (value === Infinity) {
+            throw new Error(ScoreboardError.ScoreInfinity);
+        }
+
+        if (value === -Infinity) {
+            throw new Error(ScoreboardError.ScoreNegInfinity);
+        }
+
+        if (value < 0) {
+            throw new Error(ScoreboardError.ScoreNegative);
+        }
+    }
 }
