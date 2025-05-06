@@ -46,25 +46,28 @@ export class Scoreboard {
         this.matches.splice(matchIndex, 1);
     }
 
-    public startMatch(homeTeam: string, awayTeam: string): Match {
-        const trimmedHomeTeam = homeTeam.trim();
-        const trimmedAwayTeam = awayTeam.trim();
+    private normalizeTeams(homeTeam: string, awayTeam: string): [string, string] {
+        return [homeTeam.trim(), awayTeam.trim()];
+    }
 
-        if (!trimmedHomeTeam || !trimmedAwayTeam) {
+    public startMatch(homeTeam: string, awayTeam: string): Match {
+        const [normalizedHomeTeamName, normalizedAwayTeamName] = this.normalizeTeams(homeTeam, awayTeam);
+
+        if (!normalizedHomeTeamName || !normalizedAwayTeamName) {
             throw new Error(ScoreboardError.TeamNamesRequired);
         }
 
-        if (trimmedHomeTeam === trimmedAwayTeam) {
+        if (normalizedHomeTeamName === normalizedAwayTeamName) {
             throw new Error(ScoreboardError.TeamsMustDiffer);
         }
 
-        const matchExists = this.findMatch(trimmedHomeTeam, trimmedAwayTeam);
+        const matchExists = this.findMatch(normalizedHomeTeamName, normalizedAwayTeamName);
 
         if (matchExists) {
             throw new Error(ScoreboardError.MatchAlreadyStarted);
         }
 
-        const match = new Match(trimmedHomeTeam, trimmedAwayTeam);
+        const match = new Match(normalizedHomeTeamName, normalizedAwayTeamName);
         this.matches.push(match);
 
         return match;
@@ -74,16 +77,15 @@ export class Scoreboard {
         this.validateScore(homeScore);
         this.validateScore(awayScore);
 
-        const trimmedHomeTeam = homeTeam.trim();
-        const trimmedAwayTeam = awayTeam.trim();
+        const [normalizedHomeTeamName, normalizedAwayTeamName] = this.normalizeTeams(homeTeam, awayTeam);
 
-        const matchExists = this.findMatch(trimmedHomeTeam, trimmedAwayTeam);
+        const match = this.findMatch(normalizedHomeTeamName, normalizedAwayTeamName);
 
-        if (!matchExists) {
+        if (!match) {
             throw new Error(ScoreboardError.MatchNotFound);
         }
 
-        matchExists.updateScore(homeScore, awayScore);
+        match.updateScore(homeScore, awayScore);
     };
 
     private validateScore(value: number): void {
