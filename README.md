@@ -1,46 +1,112 @@
-# Getting Started with Create React App
+# Live Football World Cup Scoreboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A TypeScript library for live football score tracking, with a small React demo interface for showcasing functionality for tracking ongoing football matches and their scores.
 
-## Available Scripts
+This project was developed using **Test-Driven Development (TDD)** and adheres to **SOLID** and **Clean Code** principles.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- start a new match with initial score `0 - 0`;
+- update the score of an existing match;
+- finish (remove) a match;
+- get a summary of all ongoing matches, sorted by:
+    - total score (descending);
+    - if equal, then by start time (most recent first).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### 1. Install dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm install
+```
 
-### `npm run build`
+### 2. Run tests
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm test
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Public API
 
-### `npm run eject`
+### Class: `Scoreboard`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+| Method                                     | Description                                                |
+|-------------------------------------------|------------------------------------------------------------|
+| `startMatch(homeTeam, awayTeam): Match`   | starts a new match with score 0 - 0                        |
+| `updateScore(homeTeam, awayTeam, h, a)`   | updates score to h - a                                     |
+| `finishMatch(homeTeam, awayTeam)`         | finishes the match and removes it from the scoreboard      |
+| `getMatches(): Match[]`                   | returns all ongoing matches                                |
+| `getSummary(): Match[]`                   | returns ongoing matches sorted by total score + start time |
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Validation Rules
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+All input is validated and normalized internally:
 
-## Learn More
+- team names are **trimmed** before use;
+- team names must be **non-empty**;
+- home and away teams must be **different**;
+- duplicate matches (same home+away teams) are **not allowed**;
+- score values must be:
+    - not `NaN`;
+    - not `Infinity` or `-Infinity`;
+    - greater than or equal to `0`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Design & Structure
+
+- `Match` class encapsulates match details, score, and start time;
+- `Scoreboard` orchestrates all operations and stores state in memory;
+- internal helpers like `normalizeTeams`, `validateScore`, and `findMatchIndex` improve readability and reusability;
+- error messages are centralized using `ScoreboardError` enum;
+- tests use mocked timers to verify correct time-based sorting.
+
+
+## Testing Approach
+
+This project was built using **Test-Driven Development (TDD)**:
+
+- all features were implemented starting from test cases
+- extensive coverage of:
+    - invalid team names;
+    - duplicate matches;
+    - score validation (negative, NaN, Infinity);
+    - sorting by score and start time;
+    - match finishing and state cleanup;
+- tests are written using [Jest](https://jestjs.io/).
+
+To run tests:
+
+```bash
+npm test
+```
+
+
+## Design Notes
+
+- `getMatches()` returns a reference to the internal array may be changed to a `readonly` array or DTOs later for immutability;
+- `getSummary()` returns a shallow copy sorted as required;
+- team pairing is **order-sensitive**: `"Mexico" vs "Canada"` ≠ `"Canada" vs "Mexico"`.
+
+
+## Built With
+
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Jest](https://jestjs.io/) — for unit testing
+
+> This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) using the TypeScript template. React is used only for the optional demo UI and not required for using the library.
+
+
+## Potential Improvements
+
+While the current solution meets all requirements, future improvements could include:
+
+- return `readonly` or cloned data to prevent external mutation;
+- expose typed DTOs (`MatchData`) instead of raw class instances;
+- move sorting logic into a dedicated comparator function;
+- support unordered team pairings (optional);
+- add localization for error messages.
